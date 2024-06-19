@@ -1,0 +1,77 @@
+version: '3.7'
+services:
+  idsvr:
+    image: curity.azurecr.io/curity/idsvr:latest
+    container_name: idsvr
+    ports:
+    - "6749:6749"
+    - "8443:8443"
+    - "4466:4466"
+    environment:
+      PASSWORD: Password1 ##admin user password
+      LOGGING_LEVEL: DEBUG
+    networks:
+      demonetwork:
+        aliases:
+          - 'axio-kong-tutorial-idsvr'
+
+  kong:
+    build: ./kong-image
+    container_name: kong
+    volumes:
+      - ${OPA_KONG_VOLUME_BASE_PATH:-.}/kong-image/configuration/:/usr/local/kong/declarative
+    ports:
+     - "8000:8000"
+     - "8001:8001"
+     - "8442:8443"
+     - "8444:8444"
+    environment:
+     - KONG_DATABASE=off
+     - KONG_DECLARATIVE_CONFIG=/usr/local/kong/declarative/kong.yml
+     - KONG_PLUGINS=bundled,phantom-token
+     - KONG_NGINX_HTTP_LUA_SHARED_DICT=phantom-token 10m
+     - KONG_LOG_LEVEL=debug
+     - KONG_PROXY_ACCESS_LOG=/dev/stdout
+     - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+     - KONG_PROXY_ERROR_LOG=/dev/stderr
+     - KONG_ADMIN_ERROR_LOG=/dev/stderr
+     - KONG_PROXY_LISTEN=0.0.0.0:8000, 0.0.0.0:8443 ssl
+     - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+    networks:
+      demonetwork:
+        aliases:
+          - 'axio-kong-tutorial-kong'
+
+  api:
+    build: ./api
+    ports: 
+      - "8080:8080"
+    container_name: api
+    hostname: api
+    volumes: 
+      - ${OPA_KONG_VOLUME_BASE_PATH:-.}/api/server/data/:/app/data
+    networks:
+      demonetwork:
+        aliases:
+          - 'axio-kong-tutorial-api'
+
+  curity-data:
+    container_name: database
+    image: postgres:14.5
+    ports:
+     - 5432:5432
+    volumes:
+      - ./config/postgresql/data:/var/lib/postgresql/data
+      - ./config/postgresql/create-database.sql:/docker-entrypoint-initdb.d/create-database.sql
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Password1"
+      POSTGRES_DB: "idsvr"
+    networks:
+      demonetwork:
+        aliases:
+          - 'axio-kong-tutorial-database'
+
+networks:
+  demonetwork:
+    name: curity-demo-network
