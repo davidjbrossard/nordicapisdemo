@@ -15,9 +15,9 @@ services:
         aliases:
           - 'axio-kong-tutorial-idsvr'
 
-  axiomatics:
-    build: ./axiomatics
-    container_name: axio
+  #axiomatics:
+  #  build: ./axiomatics-image
+  #  container_name: axio
 
   kong:
     build: ./kong-image

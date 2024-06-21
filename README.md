@@ -23,3 +23,13 @@ sequenceDiagram
     API Gateway-->>User: redacted record 123
 
 ```
+
+# Running Instructions
+
+````
+docker compose pull
+docker compose build
+docker compose up
+````
+
+Note that docker compose build may have auth errors when pulling images. This will require you to manually docker pull those images and then rerun docker compose build.

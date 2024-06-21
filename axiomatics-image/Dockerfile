@@ -16,7 +16,7 @@ COPY ${SRC_HOME}/access-decision-service-${ADS_VER}.jar ${ADS_HOME}/ads.jar
 COPY ${SRC_HOME}/lib/http*.jar ${ADS_HOME}/lib/
 COPY ${SRC_HOME}/lib/parser*.jar ${ADS_HOME}/lib/
 
-COPY ads_deployment.yaml ${ADS_HOME}/conf/
-COPY licenses/axiomatics_PDP.license ${ADS_HOME}/conf/
+COPY config/axiomatics/ads_deployment.yaml ${ADS_HOME}/conf/
+COPY config/axiomatics/axiomatics_PDP.license ${ADS_HOME}/conf/
 
 ENTRYPOINT $JAVA_HOME/bin/java -cp "./ads.jar:./lib/*" com.axiomatics.ads.App server conf/ads_deployment.yaml
